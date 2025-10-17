@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useContext } from "react"; // ✅ NEW!
+import { AuthContext } from "../Context/AuthContext"; // ✅ NEW!
 import { 
   UserIcon, 
   MailIcon, 
@@ -12,11 +14,44 @@ import {
   ExclamationCircleIcon
 } from "@heroicons/react/solid";
 
-const Register = ({ onRegister }) => {
+// ✅ LocalStorage Helper Functions
+const LOCALSTORAGE_KEYS = {
+  USERS: 'app_users',
+  CURRENT_USER: 'current_user'
+};
+
+const saveUserToLocalStorage = (user) => {
+  const users = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.USERS) || '[]');
+  const userExists = users.find(u => u.email === user.email);
+  
+  if (userExists) {
+    return { success: false, message: 'User already exists' };
+  }
+  
+  const newUser = {
+    id: Date.now().toString(),
+    name: user.name.trim(),
+    email: user.email.toLowerCase().trim(),
+    password: user.password, // ✅ PLAIN TEXT (matches Login)
+    createdAt: new Date().toISOString(),
+    isVerified: false,
+    loginAttempts: 0
+  };
+  
+  users.push(newUser);
+  localStorage.setItem(LOCALSTORAGE_KEYS.USERS, JSON.stringify(users));
+  return { success: true, user: newUser, message: 'User registered successfully' };
+};
+
+const Register = () => { // ✅ REMOVED onRegister prop
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  
+  // ✅ NEW: AuthContext!
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Validation functions
@@ -25,6 +60,7 @@ const Register = ({ onRegister }) => {
 
   useEffect(() => {
     if (error) setError("");
+    if (successMessage) setSuccessMessage("");
   }, [form]);
 
   const handleChange = (e) => {
@@ -51,18 +87,29 @@ const Register = ({ onRegister }) => {
 
     setIsSubmitting(true);
     setError("");
+    setSuccessMessage("");
     
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate success for any input, or add demo check
-          resolve();
-        }, 2000);
-      });
-      onRegister(form);
-      navigate("/login");
+      // ✅ SAVE TO LOCALSTORAGE
+      const result = saveUserToLocalStorage(form);
+      
+      if (!result.success) {
+        setError(result.message);
+        return;
+      }
+      
+      // ✅ FIXED: Update AuthContext INSTANTLY!
+      setUser(result.user);
+      
+      // ✅ Show success and redirect
+      setSuccessMessage(`Welcome, ${result.user.name}! Redirecting to login...`);
+      
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      
     } catch (err) {
+      console.error("Registration error:", err);
       setError("Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -305,6 +352,20 @@ const Register = ({ onRegister }) => {
               )}
             </AnimatePresence>
 
+            {/* ✅ Enhanced Success Message */}
+            <AnimatePresence>
+              {successMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center text-green-700 text-sm"
+                >
+                  <ShieldCheckIcon className="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span>{successMessage}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* 🚀 Enhanced Submit Button */}
             <motion.button
               type="submit"
@@ -345,8 +406,8 @@ const Register = ({ onRegister }) => {
             transition={{ delay: 0.7, duration: 0.5 }}
           >
             {[
-              { icon: ShieldCheckIcon, color: "text-green-500", text: "Secure Signup", tooltip: "Your information is encrypted" },
-              { icon: MailIcon, color: "text-blue-500", text: "Email Verification", tooltip: "Confirm your email to activate" },
+              { icon: ShieldCheckIcon, color: "text-green-500", text: "Local Storage", tooltip: "Your data is stored securely in browser" },
+              { icon: MailIcon, color: "text-blue-500", text: "Email Unique", tooltip: "No duplicate accounts allowed" },
             ].map((item, i) => (
               <motion.div 
                 key={i} 

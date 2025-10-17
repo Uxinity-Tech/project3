@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useContext } from "react";
+import { AuthContext } from "../Context/AuthContext"; // ✅ NEW!
 import { 
   MailIcon, 
   LockClosedIcon, 
@@ -9,23 +11,57 @@ import {
   UserIcon,
   EyeIcon,
   EyeOffIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  CheckCircleIcon
 } from "@heroicons/react/solid";
 
-const Login = ({ onLogin }) => {
+// ✅ SAME LOCALSTORAGE SYSTEM as Register
+const LOCALSTORAGE_KEYS = {
+  USERS: 'app_users',
+  CURRENT_USER: 'current_user'
+};
+
+// ✅ AUTHENTICATION FUNCTION (matches Register)
+const authenticateUser = (email, password) => {
+  const users = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.USERS) || '[]');
+  const user = users.find(u => u.email === email && u.password === password);
+  
+  if (!user) {
+    return { success: false, message: 'Invalid email or password' };
+  }
+  
+  // Update login attempts and last login
+  const updatedUsers = users.map(u => 
+    u.id === user.id 
+      ? { ...u, loginAttempts: 0, lastLogin: new Date().toISOString() }
+      : u
+  );
+  
+  localStorage.setItem(LOCALSTORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+  localStorage.setItem(LOCALSTORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+  
+  return { success: true, user };
+};
+
+const Login = () => { // ✅ REMOVED onLogin prop
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // ✅ NEW: AuthContext!
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Email validation regex
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   useEffect(() => {
-    // Clear error on form change
+    // Clear error/success on form change
     if (error) setError("");
+    if (successMessage) setSuccessMessage("");
   }, [form]);
 
   const handleChange = (e) => {
@@ -48,22 +84,30 @@ const Login = ({ onLogin }) => {
 
     setIsSubmitting(true);
     setError("");
+    setSuccessMessage("");
     
     try {
-      // Simulate API call with better error simulation
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (form.email === "demo@example.com" && form.password === "password123") {
-            resolve();
-          } else {
-            reject(new Error("Invalid credentials"));
-          }
-        }, 2000);
-      });
-      onLogin(form);
-      navigate("/");
+      // ✅ REAL LOCALSTORAGE AUTHENTICATION
+      const result = authenticateUser(form.email, form.password);
+      
+      if (!result.success) {
+        setError(result.message);
+        return;
+      }
+      
+      // ✅ FIXED: Update AuthContext INSTANTLY!
+      setUser(result.user);
+      
+      // ✅ Show success and redirect
+      setSuccessMessage(`Welcome back, ${result.user.name}!`);
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+      
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      console.error("Login error:", err);
+      setError("Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,14 +116,22 @@ const Login = ({ onLogin }) => {
   const handleForgotPassword = (e) => {
     e.preventDefault();
     setShowForgotPassword(true);
-    // Simulate forgot password logic
+    
+    // ✅ Check if user exists in localStorage
+    const users = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.USERS) || '[]');
+    const user = users.find(u => u.email === form.email);
+    
     setTimeout(() => {
-      alert("Password reset link sent to your email!"); // Replace with actual API
+      if (user) {
+        alert(`Password reset link sent to ${form.email}!`);
+      } else {
+        alert("Email not found. Please register first.");
+      }
       setShowForgotPassword(false);
     }, 500);
   };
 
-  // Enhanced Animated Particles with more variety
+  // ... KEEP ALL YOUR BEAUTIFUL ANIMATIONS EXACTLY SAME ...
   const Particles = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(30)].map((_, i) => {
@@ -113,7 +165,6 @@ const Login = ({ onLogin }) => {
     </div>
   );
 
-  // Floating Elements for Extra Flair
   const FloatingElements = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[
@@ -143,7 +194,6 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="pt-12 sm:pt-24 min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
-      {/* ✨ Enhanced Animated Background */}
       <Particles />
       <FloatingElements />
       
@@ -153,7 +203,6 @@ const Login = ({ onLogin }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {/* 🎨 Enhanced Glass Morphism Card with Subtle Glow */}
         <motion.div
           className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
           whileHover={{ y: -5, scale: 1.005 }}
@@ -162,7 +211,6 @@ const Login = ({ onLogin }) => {
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)",
           }}
         >
-          {/* Subtle Glow Border */}
           <motion.div 
             className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 -z-10"
             animate={{ 
@@ -172,7 +220,6 @@ const Login = ({ onLogin }) => {
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           />
           
-          {/* 🔐 Enhanced Header with Gradient Text Animation */}
           <motion.div 
             className="text-center mb-6 sm:mb-8 relative z-10"
             initial={{ opacity: 0, y: 20 }}
@@ -209,9 +256,7 @@ const Login = ({ onLogin }) => {
             </motion.p>
           </motion.div>
 
-          {/* 📝 Enhanced Form with Better Validation Styling */}
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 relative z-10">
-            {/* Email Field */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -237,7 +282,6 @@ const Login = ({ onLogin }) => {
               />
             </motion.div>
 
-            {/* Password Field */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -274,7 +318,6 @@ const Login = ({ onLogin }) => {
               </button>
             </motion.div>
 
-            {/* Forgot Password Link */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -290,7 +333,6 @@ const Login = ({ onLogin }) => {
               </button>
             </motion.div>
 
-            {/* ❌ Enhanced Error Message */}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -305,7 +347,19 @@ const Login = ({ onLogin }) => {
               )}
             </AnimatePresence>
 
-            {/* 🚀 Enhanced Submit Button with Progress */}
+            <AnimatePresence>
+              {successMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center text-green-700 text-sm"
+                >
+                  <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span>{successMessage}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <motion.button
               type="submit"
               disabled={isSubmitting}
@@ -327,7 +381,6 @@ const Login = ({ onLogin }) => {
                   <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               )}
-              {/* ✨ Enhanced Shine Effect with Gradient */}
               <motion.div 
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transform opacity-0 group-hover:opacity-100"
                 initial={{ x: "-100%" }}
@@ -337,7 +390,6 @@ const Login = ({ onLogin }) => {
             </motion.button>
           </form>
 
-          {/* ✅ Enhanced Trust Indicators with Tooltips */}
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200/50 relative z-10"
             initial={{ opacity: 0 }}
@@ -345,8 +397,8 @@ const Login = ({ onLogin }) => {
             transition={{ delay: 0.8, duration: 0.5 }}
           >
             {[
-              { icon: ShieldCheckIcon, color: "text-green-500", text: "End-to-End Encrypted", tooltip: "Your data is protected" },
-              { icon: MailIcon, color: "text-blue-500", text: "Passwordless Option", tooltip: "Use magic links for login" },
+              { icon: ShieldCheckIcon, color: "text-green-500", text: "Local Storage", tooltip: "Your data stays in browser" },
+              { icon: MailIcon, color: "text-blue-500", text: "Real Users", tooltip: "Works with registered accounts" },
             ].map((item, i) => (
               <motion.div 
                 key={i} 
@@ -356,7 +408,6 @@ const Login = ({ onLogin }) => {
               >
                 <item.icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                 <span>{item.text}</span>
-                {/* Simple Tooltip */}
                 <motion.div 
                   className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible whitespace-nowrap"
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -371,7 +422,6 @@ const Login = ({ onLogin }) => {
           </motion.div>
         </motion.div>
 
-        {/* 🔗 Enhanced Footer Links with Social Options */}
         <motion.div 
           className="text-center mt-6 space-y-4 relative z-10"
           initial={{ opacity: 0 }}
@@ -400,7 +450,6 @@ const Login = ({ onLogin }) => {
               <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Continue as Guest</span>
             </button>
-            {/* Social Login Teaser */}
             <div className="flex items-center space-x-1 text-gray-400 text-xs">
               <span>Or sign in with</span>
               <div className="flex space-x-2 ml-1">

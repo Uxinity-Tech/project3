@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import { CartContext } from "../Context/CartContext";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { CartContext } from "../Context/CartContext";
 import Toast from "../components/Toast";
 
 const Cart = () => {
@@ -77,7 +77,7 @@ const Cart = () => {
               <p className="text-gray-600">{cartItems.length} items</p>
             </div>
           </div>
-          <Link to="/products" className="text-pink-500 hover:text-pink-600 font-semibold">
+          <Link to="/" className="text-pink-500 hover:text-pink-600 font-semibold">
             Continue Shopping →
           </Link>
         </motion.div>
@@ -97,10 +97,7 @@ const Cart = () => {
                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
               >
                 <div className="p-6 flex items-center">
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="relative"
-                  >
+                  <motion.div whileHover={{ scale: 1.05 }} className="relative">
                     <img 
                       src={item.image} 
                       alt={item.name} 
@@ -155,7 +152,7 @@ const Cart = () => {
                       className="w-10 h-10 bg-red-50 hover:bg-red-100 rounded-full flex items-center justify-center text-red-500 hover:text-red-600 transition-all"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
@@ -192,7 +189,7 @@ const Cart = () => {
               <div className="mb-6">
                 <div className="flex justify-between text-2xl font-bold text-gray-900">
                   <span>Total:</span>
-                  <span>${totalPrice().toFixed(2)}</span>
+                  <span>${totalPrice()}</span>
                 </div>
               </div>
 
@@ -201,10 +198,10 @@ const Cart = () => {
                   to="/checkout"
                   className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg transform hover:scale-105 transition-all block text-center"
                 >
-                  Proceed to Checkout → (${totalPrice().toFixed(2)})
+                  Proceed to Checkout → (${totalPrice()})
                 </Link>
                 <Link 
-                  to="/products"
+                  to="/"
                   className="w-full border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-all block text-center"
                 >
                   Continue Shopping
@@ -217,17 +214,6 @@ const Cart = () => {
                     Clear Cart
                   </button>
                 )}
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                    </svg>
-                    <span>Secure Checkout</span>
-                  </div>
-                </div>
               </div>
             </div>
           </motion.div>
