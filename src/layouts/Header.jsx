@@ -1,26 +1,14 @@
-import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { AuthContext } from "../Context/AuthContext"; // ✅ FIXED PATH!
 
 const Header = ({ toggleCart, cartCount = 0 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  
-  // ✅ AUTH CONTEXT INTEGRATION
-  const { user, isAuthenticated, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const [isLoggedIn] = useState(false); // Change to true if logged in, or integrate with auth context
 
   const wishlistCount = 2;
-
-  // ✅ LOGOUT FUNCTION
-  const handleLogout = () => {
-    logout();
-    setProfileOpen(false);
-    setMobileMenuOpen(false);
-    navigate("/login");
-  };
 
   return (
     <>
@@ -107,9 +95,9 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                 )}
               </Link>
 
-              {/* ✅ PROFILE / AUTH - FULLY UPDATED */}
+              {/* Profile / Auth */}
               <div className="relative">
-                {isAuthenticated ? (
+                {isLoggedIn ? (
                   <>
                     <button
                       onClick={() => setProfileOpen(!profileOpen)}
@@ -118,9 +106,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span className="hidden sm:block text-sm font-medium">
-                        {user?.name || "User"}
-                      </span>
+                      <span className="hidden sm:block text-sm font-medium">John</span>
                     </button>
 
                     <AnimatePresence>
@@ -138,28 +124,15 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                             Profile
                           </Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
                             Orders
                           </Link>
                           <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
                             Settings
                           </Link>
                           <hr className="my-1 border-gray-100" />
-                          <button
-                            onClick={handleLogout}
-                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                          >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
+                          <Link to="/logout" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
                             Sign Out
-                          </button>
+                          </Link>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -290,11 +263,60 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                   transition={{ delay: 0.1 }}
                   className="space-y-2"
                 >
-                  {/* ... KEEP ALL YOUR EXISTING NAV LINKS ... */}
+                  <Link
+                    to="/"
+                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Home
+                  </Link>
+                  <Link
+                    to="/products"
+                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Products
+                  </Link>
+                  <Link
+                    to="/deals"
+                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 7 9a8.819 8.819 0 01.9 4.9 8.211 8.211 0 01-1.4 5.6 8.211 8.211 0 01-5.6 1.4A8.819 8.819 0 013 18s1-1 1-1a8.819 8.819 0 014.9-.9 8.211 8.211 0 015.6 1.4 8.211 8.211 0 011.4 5.6 8.819 8.819 0 004.9.9s1 1 1 1z" />
+                    </svg>
+                    Deals
+                  </Link>
+                  <Link
+                    to="/brands"
+                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    Brands
+                  </Link>
+                  <Link
+                    to="/categories"
+                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    Categories
+                  </Link>
                 </motion.div>
               </nav>
 
-              {/* ===== Mobile Actions - UPDATED WITH AUTH */}
+              {/* ===== Mobile Actions ===== */}
               <div className="p-4 border-t border-gray-100 space-y-3 bg-gray-50">
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
@@ -322,7 +344,6 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                       <p className="text-xs text-gray-500">{wishlistCount} items</p>
                     </div>
                   </Link>
-                  
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -345,39 +366,22 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                       <p className="text-xs text-gray-500">{cartCount} items</p>
                     </div>
                   </button>
-                  
-                  {isAuthenticated ? (
-                    <>
-                      <Link
-                        to="/profile"
-                        className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="p-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl">
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-900">{user?.name || "Profile"}</span>
-                          <p className="text-xs text-gray-500">View account</p>
-                        </div>
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center space-x-3 w-full text-left nav-link-mobile p-3 rounded-xl hover:bg-red-50 transition-all"
-                      >
-                        <div className="p-2 bg-red-50 rounded-xl">
-                          <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-900">Sign Out</span>
-                          <p className="text-xs text-gray-500">Logout {user?.name}</p>
-                        </div>
-                      </button>
-                    </>
+                  {isLoggedIn ? (
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <div className="p-2 bg-gray-50 rounded-xl">
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-gray-900">Profile</span>
+                        <p className="text-xs text-gray-500">View account</p>
+                      </div>
+                    </Link>
                   ) : (
                     <>
                       <Link
