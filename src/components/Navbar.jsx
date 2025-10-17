@@ -19,6 +19,24 @@ const Navbar = () => {
   const cartCount = 3;
   const wishlistCount = 1;
 
+  // Close menu on outside click or escape
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    const handleOutsideClick = (e) => {
+      if (menuOpen && !e.target.closest('.mobile-menu')) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('click', handleOutsideClick);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [menuOpen]);
+
   // Animated Particles for subtle background
   const Particles = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -44,6 +62,14 @@ const Navbar = () => {
       ))}
     </div>
   );
+
+  const menuItems = [
+    { to: "/", label: "Home" },
+    { to: "/products", label: "Products" },
+    { to: "/brands", label: "Brands" },
+    { to: "/categories", label: "Categories" },
+    { to: "/deals", label: "Deals" }
+  ];
 
   return (
     <>
@@ -79,13 +105,7 @@ const Navbar = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              {[
-                { to: "/", label: "Home" },
-                { to: "/products", label: "Products" },
-                { to: "/brands", label: "Brands" },
-                { to: "/categories", label: "Categories" },
-                { to: "/deals", label: "Deals" }
-              ].map((item, index) => (
+              {menuItems.map((item, index) => (
                 <motion.div
                   key={item.label}
                   whileHover={{ y: -2 }}
@@ -236,79 +256,108 @@ const Navbar = () => {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white/95 backdrop-blur-md border-b border-white/30 overflow-hidden"
-          >
-            <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              <Link 
-                to="/" 
-                className="block text-gray-700 hover:text-pink-500 font-medium text-base transition-all duration-300 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link 
-                to="/products" 
-                className="block text-gray-700 hover:text-pink-500 font-medium text-base transition-all duration-300 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Products
-              </Link>
-              <Link 
-                to="/categories" 
-                className="block text-gray-700 hover:text-pink-500 font-medium text-base transition-all duration-300 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Categories
-              </Link>
-              <Link 
-                to="/deals" 
-                className="block text-gray-700 hover:text-pink-500 font-medium text-base transition-all duration-300 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Deals
-              </Link>
-              
-              {/* Mobile Actions */}
-              <div className="pt-4 border-t border-gray-200 space-y-2">
-                <Link 
-                  to="/whishlist" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-2 transition-all duration-300"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <HeartIcon className="w-5 h-5" />
-                  <span>Wishlist ({wishlistCount})</span>
-                </Link>
-                <Link 
-                  to="/cart" 
-                  className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-2 transition-all duration-300"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <ShoppingCartIcon className="w-5 h-5" />
-                  <span>Cart ({cartCount})</span>
-                </Link>
+          <>
+            {/* Backdrop Overlay */}
+            <motion.div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            
+            {/* Slide-in Mobile Menu from Right */}
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed right-0 top-0 h-full w-80 bg-white/95 backdrop-blur-md shadow-2xl z-50 md:hidden overflow-y-auto mobile-menu"
+            >
+              {/* Menu Items */}
+              <div className="p-4 space-y-4 pt-20"> {/* Added pt-20 to avoid top overlap if needed */}
+                {menuItems.map((item) => (
+                  <Link 
+                    key={item.label}
+                    to={item.to} 
+                    className="block text-gray-700 hover:text-pink-500 font-medium text-lg py-3 transition-all duration-300 border-b border-gray-100 last:border-b-0"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                
+                {/* Mobile Actions - Stacked on left, but can be adjusted */}
+                <div className="pt-6 border-t border-gray-200 space-y-4">
+                  <Link 
+                    to="/wishlist" 
+                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-3 transition-all duration-300"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <HeartIcon className="w-5 h-5" />
+                    <span className="text-lg">Wishlist ({wishlistCount})</span>
+                  </Link>
+                  <Link 
+                    to="/cart" 
+                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-3 transition-all duration-300"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <ShoppingCartIcon className="w-5 h-5" />
+                    <span className="text-lg">Cart ({cartCount})</span>
+                  </Link>
+                  {/* Mobile User Menu */}
+                  <Link 
+                    to="/profile" 
+                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-3 transition-all duration-300"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    <span className="text-lg">Account</span>
+                  </Link>
+                  {/* Mobile Search */}
+                  <button 
+                    onClick={() => {
+                      setSearchOpen(true);
+                      setMenuOpen(false);
+                    }}
+                    className="flex items-center space-x-3 text-gray-700 hover:text-pink-500 py-3 transition-all duration-300 w-full text-left"
+                  >
+                    <SearchIcon className="w-5 h-5" />
+                    <span className="text-lg">Search</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {/* Mobile Search Input - Adjusted for mobile */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div 
+            className="fixed inset-0 z-50 md:hidden flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSearchOpen(false)}
+          >
+            <motion.input
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              type="text"
+              placeholder="Search products..."
+              className="w-11/12 max-w-md p-4 bg-white/95 backdrop-blur-sm border border-gray-300 rounded-xl shadow-xl outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

@@ -6,7 +6,10 @@ import {
   LockClosedIcon, 
   ArrowRightIcon,
   ShieldCheckIcon,
-  UserIcon
+  UserIcon,
+  EyeIcon,
+  EyeOffIcon,
+  ExclamationCircleIcon
 } from "@heroicons/react/solid";
 
 const Login = ({ onLogin }) => {
@@ -14,89 +17,185 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Email validation regex
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  useEffect(() => {
+    // Clear error on form change
     if (error) setError("");
+  }, [form]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!isValidEmail(form.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
     setIsSubmitting(true);
     setError("");
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate API call with better error simulation
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (form.email === "demo@example.com" && form.password === "password123") {
+            resolve();
+          } else {
+            reject(new Error("Invalid credentials"));
+          }
+        }, 2000);
+      });
       onLogin(form);
       navigate("/");
     } catch (err) {
-      setError("Invalid email or password");
+      setError("Invalid email or password. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Animated Particles
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    setShowForgotPassword(true);
+    // Simulate forgot password logic
+    setTimeout(() => {
+      alert("Password reset link sent to your email!"); // Replace with actual API
+      setShowForgotPassword(false);
+    }, 500);
+  };
+
+  // Enhanced Animated Particles with more variety
   const Particles = () => (
-    <div className="absolute inset-0 overflow-hidden">
-      {[...Array(20)].map((_, i) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(30)].map((_, i) => {
+        const size = Math.random() * 4 + 1;
+        const isBubble = Math.random() > 0.7;
+        return (
+          <motion.div
+            key={i}
+            className={`absolute rounded-full ${isBubble ? 'bg-gradient-to-b from-pink-400/30 to-purple-400/30' : 'bg-white/20'}`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+            }}
+            animate={{
+              y: [0, -120, 0],
+              x: [0, (Math.random() - 0.5) * 100, 0],
+              opacity: [0.2, 0.8, 0.2],
+              scale: isBubble ? [1, 1.5, 1] : [1, 1, 1],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 6,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+              ease: "easeInOut",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+
+  // Floating Elements for Extra Flair
+  const FloatingElements = () => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[
+        { icon: MailIcon, color: "from-blue-400 to-cyan-400", top: "10%", left: "10%" },
+        { icon: LockClosedIcon, color: "from-purple-400 to-pink-400", top: "70%", right: "10%" },
+        { icon: ShieldCheckIcon, color: "from-green-400 to-emerald-400", top: "40%", left: "80%" },
+      ].map((el, i) => (
         <motion.div
           key={i}
-          className="absolute w-2 h-2 bg-white/20 rounded-full"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
+          className={`absolute text-white/20`}
+          style={{ top: el.top, left: el.left }}
           animate={{
-            y: [0, -100, 0],
-            x: [0, Math.random() * 50 - 25, 0],
-            opacity: [0.3, 1, 0.3],
+            rotate: [0, 180, 360],
+            scale: [1, 1.1, 1],
           }}
           transition={{
-            duration: 5 + Math.random() * 5,
+            duration: 10 + i * 2,
             repeat: Infinity,
-            delay: Math.random() * 2,
+            ease: "easeInOut",
           }}
-        />
+        >
+          <el.icon className="w-8 h-8" />
+        </motion.div>
       ))}
     </div>
   );
 
   return (
-    <div className="pt-12 sm:pt-24 min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-pink-50 via-white to-purple-50">
-      {/* ✨ Animated Background */}
+    <div className="pt-12 sm:pt-24 min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+      {/* ✨ Enhanced Animated Background */}
       <Particles />
+      <FloatingElements />
       
       <motion.div 
         className="relative z-10 w-full max-w-md mx-4"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {/* 🎨 Glass Morphism Card */}
+        {/* 🎨 Enhanced Glass Morphism Card with Subtle Glow */}
         <motion.div
-          className="backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl"
-          whileHover={{ y: -5, scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 300 }}
+          className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+          whileHover={{ y: -5, scale: 1.005 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          style={{
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)",
+          }}
         >
-          {/* 🔐 Header */}
+          {/* Subtle Glow Border */}
           <motion.div 
-            className="text-center mb-6 sm:mb-8"
+            className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 -z-10"
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.02, 1],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          
+          {/* 🔐 Enhanced Header with Gradient Text Animation */}
+          <motion.div 
+            className="text-center mb-6 sm:mb-8 relative z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
             <motion.div
-              className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4"
-              animate={{ rotate: [0, 360] }}
+              className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.05, 1],
+              }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              whileHover={{ scale: 1.1 }}
             >
-              <LockClosedIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              <LockClosedIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-md" />
             </motion.div>
             <motion.h1 
-              className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2"
+              className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent"
+              animate={{ 
+                backgroundPosition: ["0% 50%", "100% 50%"],
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             >
               Welcome Back
             </motion.h1>
@@ -104,21 +203,24 @@ const Login = ({ onLogin }) => {
               className="text-gray-600 text-sm sm:text-base"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
             >
-              Sign in to your account
+              Sign in to continue your journey
             </motion.p>
           </motion.div>
 
-          {/* 📝 Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          {/* 📝 Enhanced Form with Better Validation Styling */}
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 relative z-10">
             {/* Email Field */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
               className="relative"
             >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <MailIcon className="h-5 w-5 text-gray-400" />
+              </div>
               <input
                 type="email"
                 name="email"
@@ -126,32 +228,25 @@ const Login = ({ onLogin }) => {
                 onChange={handleChange}
                 required
                 className={`
-                  w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/50 border-2 border-gray-200 rounded-xl sm:rounded-2xl 
+                  w-full pl-10 pr-4 py-3 sm:py-4 bg-white/60 border-2 rounded-xl sm:rounded-2xl 
                   backdrop-blur-sm focus:border-pink-500 focus:outline-none transition-all duration-300
-                  peer placeholder-transparent text-sm sm:text-base
-                  ${form.email ? 'border-pink-500' : 'border-gray-200'}
+                  text-sm sm:text-base placeholder-gray-500
+                  ${error ? 'border-red-500' : form.email ? 'border-pink-500' : 'border-gray-200'}
                 `}
-                placeholder=" "
+                placeholder="Enter your email"
               />
-              <label 
-                className={`
-                  absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-500 transition-all duration-300 text-xs sm:text-base
-                  peer-placeholder-shown:text-sm sm:peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                  ${form.email ? '-top-6 sm:-top-6 text-xs text-pink-600' : 'top-3 sm:top-4 text-sm sm:text-base'}
-                `}
-              >
-                <MailIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-                Email Address
-              </label>
             </motion.div>
 
             {/* Password Field */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
               className="relative"
             >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <LockClosedIcon className="h-5 w-5 text-gray-400" />
+              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
@@ -159,52 +254,58 @@ const Login = ({ onLogin }) => {
                 onChange={handleChange}
                 required
                 className={`
-                  w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/50 border-2 border-gray-200 rounded-xl sm:rounded-2xl 
+                  w-full pl-10 pr-12 py-3 sm:py-4 bg-white/60 border-2 rounded-xl sm:rounded-2xl 
                   backdrop-blur-sm focus:border-pink-500 focus:outline-none transition-all duration-300
-                  peer placeholder-transparent text-sm sm:text-base
-                  ${form.password ? 'border-pink-500' : 'border-gray-200'}
+                  text-sm sm:text-base placeholder-gray-500
+                  ${error ? 'border-red-500' : form.password ? 'border-pink-500' : 'border-gray-200'}
                 `}
-                placeholder=" "
+                placeholder="Enter your password"
               />
-              <label 
-                className={`
-                  absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-500 transition-all duration-300 text-xs sm:text-base
-                  peer-placeholder-shown:text-sm sm:peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                  ${form.password ? '-top-6 sm:-top-6 text-xs text-pink-600' : 'top-3 sm:top-4 text-sm sm:text-base'}
-                `}
-              >
-                <LockClosedIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-                Password
-              </label>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-pink-600 transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-pink-600 transition-colors"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showPassword ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"} />
-                </svg>
+                {showPassword ? (
+                  <EyeOffIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
               </button>
             </motion.div>
 
-            {/* ❌ Error Message */}
+            {/* Forgot Password Link */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="text-right"
+            >
+              <button
+                onClick={handleForgotPassword}
+                disabled={isSubmitting || showForgotPassword}
+                className="text-sm text-pink-600 hover:text-pink-700 font-medium transition-colors disabled:opacity-50"
+              >
+                {showForgotPassword ? "Sending..." : "Forgot Password?"}
+              </button>
+            </motion.div>
+
+            {/* ❌ Enhanced Error Message */}
             <AnimatePresence>
               {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-red-500 text-xs sm:text-sm flex items-center"
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center text-red-700 text-sm"
                 >
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" />
-                  </svg>
-                  {error}
-                </motion.p>
+                  <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+                  <span>{error}</span>
+                </motion.div>
               )}
             </AnimatePresence>
 
-            {/* 🚀 Submit Button */}
+            {/* 🚀 Enhanced Submit Button with Progress */}
             <motion.button
               type="submit"
               disabled={isSubmitting}
@@ -213,72 +314,104 @@ const Login = ({ onLogin }) => {
               whileTap={{ scale: 0.98 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   <span className="text-sm sm:text-base">Signing In...</span>
                 </div>
               ) : (
                 <span className="flex items-center justify-center space-x-2">
                   <span className="text-sm sm:text-base">Sign In</span>
-                  <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               )}
-              {/* ✨ Shine Effect */}
+              {/* ✨ Enhanced Shine Effect with Gradient */}
               <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 transform"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transform opacity-0 group-hover:opacity-100"
                 initial={{ x: "-100%" }}
                 whileHover={{ x: "100%" }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
               />
             </motion.button>
           </form>
 
-          {/* ✅ Trust Indicators */}
+          {/* ✅ Enhanced Trust Indicators with Tooltips */}
           <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200"
+            className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200/50 relative z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
           >
             {[
-              { icon: <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />, text: "Secure" },
-              { icon: <MailIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />, text: "Magic Link" }
+              { icon: ShieldCheckIcon, color: "text-green-500", text: "End-to-End Encrypted", tooltip: "Your data is protected" },
+              { icon: MailIcon, color: "text-blue-500", text: "Passwordless Option", tooltip: "Use magic links for login" },
             ].map((item, i) => (
-              <motion.div key={i} className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600" whileHover={{ scale: 1.05 }}>
-                {item.icon}
+              <motion.div 
+                key={i} 
+                className={`flex items-center space-x-2 text-xs sm:text-sm ${item.color} cursor-help relative group`}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                 <span>{item.text}</span>
+                {/* Simple Tooltip */}
+                <motion.div 
+                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 invisible whitespace-nowrap"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.tooltip}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                </motion.div>
               </motion.div>
             ))}
           </motion.div>
         </motion.div>
 
-        {/* 🔗 Footer Links */}
+        {/* 🔗 Enhanced Footer Links with Social Options */}
         <motion.div 
-          className="text-center mt-6 space-y-4"
+          className="text-center mt-6 space-y-4 relative z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 1, duration: 0.5 }}
         >
           <motion.p className="text-gray-600 text-sm sm:text-base">
             Don't have an account?{" "}
             <button 
               onClick={() => navigate("/register")}
-              className="text-pink-600 hover:text-pink-700 font-semibold transition-colors"
+              className="text-pink-600 hover:text-pink-700 font-semibold transition-colors underline decoration-2 underline-offset-2"
             >
-              Sign Up
+              Create one now
             </button>
           </motion.p>
           <motion.div 
-            className="flex items-center justify-center space-x-4 text-xs text-gray-500"
+            className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 text-xs text-gray-500"
             whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
-            <button type="button" className="flex items-center space-x-2 hover:text-pink-600 transition-colors">
-              <UserIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+            <button 
+              type="button" 
+              className="flex items-center space-x-2 hover:text-pink-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+              onClick={() => navigate("/guest")}
+            >
+              <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Continue as Guest</span>
             </button>
+            {/* Social Login Teaser */}
+            <div className="flex items-center space-x-1 text-gray-400 text-xs">
+              <span>Or sign in with</span>
+              <div className="flex space-x-2 ml-1">
+                <motion.div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center" whileHover={{ scale: 1.1 }}>
+                  <span className="text-white text-xs">G</span>
+                </motion.div>
+                <motion.div className="w-6 h-6 bg-black rounded-full flex items-center justify-center" whileHover={{ scale: 1.1 }}>
+                  <span className="text-white text-xs">X</span>
+                </motion.div>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </motion.div>
