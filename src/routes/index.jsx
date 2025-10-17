@@ -23,7 +23,7 @@ import ProductD from "../pages/ProductD";
 // import Category from "../pages/Category";
 // import ProductPage from "../pages/ProductPage";
 // Optional: ProtectedRoute wrapper
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../Context/AuthContext";
 import React from "react";
 import ProductDetailss from "../pages/ProductD";
 
