@@ -1063,7 +1063,7 @@
 
 // export default Products;
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext,useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { CartContext } from "../Context/CartContext";
@@ -1226,6 +1226,13 @@ const mockProducts = [
 ];
 
 const Products = ({ products = mockProducts, loading = false }) => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []);
   const { addToCart } = useContext(CartContext);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");

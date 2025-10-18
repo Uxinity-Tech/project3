@@ -1,5 +1,5 @@
 // ProductPage.jsx - Product Detail Page
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -23,6 +23,13 @@ const categories = [
 ];
 
 const ProductPage = () => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []);
   const { id } = useParams();
   const productId = parseInt(id, 10);
   const product = products.find(prod => prod.id === productId);

@@ -1,14 +1,56 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext"; // Adjust path as needed
 
 const Header = ({ toggleCart, cartCount = 0 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isLoggedIn] = useState(false); // Change to true if logged in, or integrate with auth context
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showLogoutMessage, setShowLogoutMessage] = useState(false);
+  
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const wishlistCount = 2;
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setShowLogoutMessage(true);
+    setTimeout(() => {
+      logout();
+      setProfileOpen(false);
+      setMobileMenuOpen(false);
+      setIsLoggingOut(false);
+      setShowLogoutMessage(false);
+      navigate("/");
+    }, 1500); // Increased duration for animation + message
+  };
+
+  const logoutVariants = {
+    initial: { opacity: 1, scale: 1, y: 0 },
+    exit: { 
+      opacity: 0, 
+      scale: 0.8, 
+      y: 20,
+      transition: { duration: 0.6, ease: "easeInOut" }
+    }
+  };
+
+  const messageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20,
+      transition: { duration: 0.4, ease: "easeIn" }
+    }
+  };
 
   return (
     <>
@@ -16,7 +58,6 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
       <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow-lg z-50 transition-all duration-300 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-
             {/* ===== Logo ===== */}
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -97,19 +138,34 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
 
               {/* Profile / Auth */}
               <div className="relative">
-                {isLoggedIn ? (
-                  <>
-                    <button
-                      onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all"
+                <AnimatePresence>
+                  {!isLoggingOut && isAuthenticated && user ? (
+                    <motion.div
+                      variants={logoutVariants}
+                      initial="initial"
+                      exit="exit"
+                      key="authenticated"
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span className="hidden sm:block text-sm font-medium">John</span>
-                    </button>
+                      <button
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all"
+                      >
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        )}
+                        <span className="hidden sm:block text-sm font-medium">
+                          {user.name || user.email || 'User'}
+                        </span>
+                      </button>
 
-                    <AnimatePresence>
                       {profileOpen && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
@@ -124,32 +180,48 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                             Profile
                           </Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
                             Orders
                           </Link>
                           <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
                             Settings
                           </Link>
                           <hr className="my-1 border-gray-100" />
-                          <Link to="/logout" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
+                          <button 
+                            onClick={handleLogout}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                          >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
                             Sign Out
-                          </Link>
+                          </button>
                         </motion.div>
                       )}
-                    </AnimatePresence>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center space-x-2 p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-full transition-all"
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      variants={logoutVariants}
+                      initial="initial"
+                      exit="exit"
+                      key="unauthenticated"
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span className="hidden sm:block text-sm font-medium">Account</span>
-                    </button>
+                      <button
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        className="flex items-center space-x-2 p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-full transition-all"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span className="hidden sm:block text-sm font-medium">Account</span>
+                      </button>
 
-                    <AnimatePresence>
                       {profileOpen && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
@@ -171,9 +243,9 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                           </Link>
                         </motion.div>
                       )}
-                    </AnimatePresence>
-                  </>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Cart */}
@@ -210,6 +282,24 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
           </div>
         </div>
       </header>
+
+      {/* ===== Logout Success Message ===== */}
+      <AnimatePresence>
+        {showLogoutMessage && (
+          <motion.div
+            variants={messageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Logged out successfully!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ===== Mobile Menu Overlay ===== */}
       <AnimatePresence>
@@ -366,56 +456,125 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                       <p className="text-xs text-gray-500">{cartCount} items</p>
                     </div>
                   </button>
-                  {isLoggedIn ? (
-                    <Link
-                      to="/profile"
-                      className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <div className="p-2 bg-gray-50 rounded-xl">
-                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-sm font-medium text-gray-900">Profile</span>
-                        <p className="text-xs text-gray-500">View account</p>
-                      </div>
-                    </Link>
-                  ) : (
-                    <>
-                      <Link
-                        to="/login"
-                        className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
+                  <AnimatePresence>
+                    {!isLoggingOut && isAuthenticated && user ? (
+                      <motion.div
+                        variants={logoutVariants}
+                        initial="initial"
+                        exit="exit"
+                        key="mobile-authenticated"
                       >
-                        <div className="p-2 bg-blue-50 rounded-xl">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-900">Login</span>
-                          <p className="text-xs text-gray-500">Access your account</p>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/register"
-                        className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
+                        <Link
+                          to="/profile"
+                          className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="p-2 bg-gray-50 rounded-xl">
+                            {user.avatar ? (
+                              <img
+                                src={user.avatar}
+                                alt={user.name}
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">
+                              {user.name || user.email || 'Profile'}
+                            </span>
+                            <p className="text-xs text-gray-500">View account</p>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/orders"
+                          className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="p-2 bg-gray-50 rounded-xl">
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">Orders</span>
+                            <p className="text-xs text-gray-500">View your orders</p>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/settings"
+                          className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="p-2 bg-gray-50 rounded-xl">
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">Settings</span>
+                            <p className="text-xs text-gray-500">Manage your account</p>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center space-x-3 w-full text-left nav-link-mobile p-3 rounded-xl hover:bg-red-50 transition-all"
+                        >
+                          <div className="p-2 bg-red-50 rounded-xl">
+                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-red-600">Sign Out</span>
+                            <p className="text-xs text-gray-500">Leave your account</p>
+                          </div>
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        variants={logoutVariants}
+                        initial="initial"
+                        exit="exit"
+                        key="mobile-unauthenticated"
                       >
-                        <div className="p-2 bg-green-50 rounded-xl">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-900">Sign Up</span>
-                          <p className="text-xs text-gray-500">Create new account</p>
-                        </div>
-                      </Link>
-                    </>
-                  )}
+                        <Link
+                          to="/login"
+                          className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="p-2 bg-blue-50 rounded-xl">
+                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">Login</span>
+                            <p className="text-xs text-gray-500">Access your account</p>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/register"
+                          className="flex items-center space-x-3 nav-link-mobile p-3 rounded-xl hover:bg-white transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="p-2 bg-green-50 rounded-xl">
+                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">Sign Up</span>
+                            <p className="text-xs text-gray-500">Create new account</p>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext,useEffect} from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import HeroBanner from "../components/HeroBanner";
@@ -23,19 +23,8 @@ const products = [
     description: "Premium running shoes with Air cushioning technology.",
     inStock: true
   },
-  {
+    {
     id: 2,
-    name: "Nike Air Max 97 Premium",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
-    category: "sneakers",
-    brand: "nike",
-    rating: 4.5,
-    description: "Premium running shoes with Air cushioning technology.",
-    inStock: true
-  },
-  {
-    id: 3,
     name: "Adidas Ultraboost 20",
     price: 99.99,
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
@@ -44,6 +33,17 @@ const products = [
     rating: 4.7,
     discount: 15,
     description: "Lightweight running shoes with Boost technology.",
+    inStock: true
+  },  
+  {
+    id: 3,
+    name: "Nike Air Max 97 Premium",
+    price: 129.99,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+    category: "sneakers",
+    brand: "nike",
+    rating: 4.5,
+    description: "Premium running shoes with Air cushioning technology.",
     inStock: true
   },
   {
@@ -289,6 +289,13 @@ const products = [
 ];
 
 const Home = () => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []); 
   const { addToCart } = useContext(CartContext);
 
   // 🖼️ 8 FEATURED SLIDER IMAGES

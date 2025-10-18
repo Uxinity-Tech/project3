@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { 
@@ -151,6 +151,13 @@ const testimonials = [
 ];
 
 const Deals = () => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []);
   // Animated Particles
   const Particles = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">

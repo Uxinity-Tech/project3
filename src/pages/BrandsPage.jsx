@@ -1,5 +1,5 @@
 // BrandsPage.jsx - Full Brands Listing Page
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -32,6 +32,13 @@ const products = [
 ];
 
 const BrandsPage = () => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []);
   return (
     <section className="py-16 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4">

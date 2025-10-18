@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { motion } from "framer-motion";
 import { 
   ShoppingBagIcon,
@@ -6,6 +6,13 @@ import {
 } from "@heroicons/react/solid";
 
 const Brand = () => {
+   useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
   const brands = [
     { name: "Nike", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg", products: 47, color: "from-orange-500 to-red-600" },
     { name: "Adidas", logo: "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg", products: 37, color: "from-blue-500 to-indigo-600" },

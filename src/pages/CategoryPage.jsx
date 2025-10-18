@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -154,6 +154,13 @@ const products = [
 
 
 const CategoryPage = () => {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, []);
   const { id } = useParams();
   const categoryId = parseInt(id, 10);
   const category = categories.find(cat => cat.id === categoryId);

@@ -1,13 +1,13 @@
 // BrandPage.jsx - Individual Brand Detail Page
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const brands = [
-  { id: 1, name: 'Apple', logo: 'https://via.placeholder.com/64x64?text=Apple', products: 15, description: 'Innovative tech products from Apple.' },
-  { id: 2, name: 'Nike', logo: 'https://via.placeholder.com/64x64?text=Nike', products: 25, description: 'Premium sportswear and footwear.' },
-  { id: 3, name: 'Penguin Books', logo: 'https://via.placeholder.com/64x64?text=Penguin', products: 18, description: 'Classic and modern literature.' },
-  { id: 4, name: 'IKEA', logo: 'https://via.placeholder.com/64x64?text=IKEA', products: 12, description: 'Affordable home furnishings.' },
+  { id: 1, name: 'Nike', logo: 'https://via.placeholder.com/64x64?text=Apple', products: 15, description: 'Innovative tech products from Apple.' },
+  { id: 2, name: 'Adidas', logo: 'https://via.placeholder.com/64x64?text=Nike', products: 25, description: 'Premium sportswear and footwear.' },
+  { id: 3, name: 'Gucci', logo: 'https://via.placeholder.com/64x64?text=Penguin', products: 18, description: 'Classic and modern literature.' },
+  { id: 4, name: 'Apple', logo: 'https://via.placeholder.com/64x64?text=IKEA', products: 12, description: 'Affordable home furnishings.' },
 ];
 
 const products = [
@@ -24,6 +24,13 @@ const products = [
 ];
 
 const BrandPage = () => {
+   useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
   const { id } = useParams();
   const brandId = parseInt(id, 10);
   const brand = brands.find(b => b.id === brandId);
