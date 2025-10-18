@@ -25,7 +25,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
       setIsLoggingOut(false);
       setShowLogoutMessage(false);
       navigate("/");
-    }, 1500); // Increased duration for animation + message
+    }, 1500);
   };
 
   const logoutVariants = {
@@ -52,6 +52,14 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
     }
   };
 
+  const bottomNavItems = [
+    { to: "/", label: "Home", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+    { to: "/products", label: "Products", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+    { to: "/wishlist", label: "Wishlist", icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z", count: wishlistCount },
+    { to: "/cart", label: "Cart", icon: "M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 7.5a1 1 0 001 1h12a1 1 0 001-1L17 13m0 0l-1.5-7.5", count: cartCount, onClick: toggleCart },
+    { to: isAuthenticated ? "/profile" : "/login", label: isAuthenticated ? "Profile" : "Login", icon: isAuthenticated ? "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" : "M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" },
+  ];
+
   return (
     <>
       {/* ===== Header ===== */}
@@ -73,7 +81,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
             <nav className="hidden md:flex items-center space-x-8">
               <Link to="/" className="nav-link flex items-center">
                 <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[0].icon} />
                 </svg>
                 Home
               </Link>
@@ -127,7 +135,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                 className="relative p-2 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[2].icon} />
                 </svg>
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
@@ -158,7 +166,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                           />
                         ) : (
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                           </svg>
                         )}
                         <span className="hidden sm:block text-sm font-medium">
@@ -175,7 +183,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                         >
                           <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                             </svg>
                             Profile
                           </Link>
@@ -217,7 +225,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                         className="flex items-center space-x-2 p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-full transition-all"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                         </svg>
                         <span className="hidden sm:block text-sm font-medium">Account</span>
                       </button>
@@ -231,7 +239,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                         >
                           <Link to="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                             </svg>
                             Login
                           </Link>
@@ -254,7 +262,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                 className="relative p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-full transition-all"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 7.5a1 1 0 001 1h12a1 1 0 001-1L17 13m0 0l-1.5-7.5" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[3].icon} />
                 </svg>
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-bounce">
@@ -353,26 +361,19 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                   transition={{ delay: 0.1 }}
                   className="space-y-2"
                 >
-                  <Link
-                    to="/"
-                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    Home
-                  </Link>
-                  <Link
-                    to="/products"
-                    className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                    Products
-                  </Link>
+                  {bottomNavItems.slice(0, 2).map((item, index) => (
+                    <Link
+                      key={index}
+                      to={item.to}
+                      className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <svg className="w-5 h-5 mr-3 text-gray-600 group-hover:text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                      </svg>
+                      {item.label}
+                    </Link>
+                  ))}
                   <Link
                     to="/deals"
                     className="block nav-link-mobile flex items-center p-3 rounded-xl hover:bg-gray-50 transition-all group"
@@ -421,7 +422,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                   >
                     <div className="relative p-2 bg-red-50 rounded-xl">
                       <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[2].icon} />
                       </svg>
                       {wishlistCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -443,7 +444,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                   >
                     <div className="relative p-2 bg-pink-50 rounded-xl">
                       <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 7.5a1 1 0 001 1h12a1 1 0 001-1L17 13m0 0l-1.5-7.5" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[3].icon} />
                       </svg>
                       {cartCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
@@ -478,7 +479,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                               />
                             ) : (
                               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                               </svg>
                             )}
                           </div>
@@ -549,7 +550,7 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
                         >
                           <div className="p-2 bg-blue-50 rounded-xl">
                             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={bottomNavItems[4].icon} />
                             </svg>
                           </div>
                           <div className="flex-1">
@@ -581,6 +582,42 @@ const Header = ({ toggleCart, cartCount = 0 }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ===== Mobile Bottom Navigation Bar ===== */}
+      <motion.nav
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-100 md:hidden"
+      >
+        <div className="flex justify-around items-center h-16 px-2">
+          {bottomNavItems.map((item, index) => (
+            <Link
+              key={index}
+              to={item.to}
+              onClick={(e) => {
+                if (item.onClick) {
+                  e.preventDefault();
+                  item.onClick();
+                }
+              }}
+              className="flex flex-col items-center justify-center p-2 text-gray-600 hover:text-pink-500 transition-all relative"
+            >
+              <div className="relative">
+                <svg className={`w-6 h-6 ${item.label === "Wishlist" ? "text-red-500" : item.label === "Cart" ? "text-pink-500" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                </svg>
+                {item.count > 0 && (
+                  <span className={`absolute -top-1 -right-1 ${item.label === "Cart" ? "bg-gradient-to-r from-pink-500 to-purple-600" : "bg-red-500"} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold`}>
+                    {item.count}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-medium mt-1">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </motion.nav>
     </>
   );
 };
