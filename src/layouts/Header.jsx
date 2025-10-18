@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../context/AuthContext"; // Adjust path as needed
+import { useAuth } from "../Context/AuthContext"; // Adjust path as needed
 
 const Header = ({ toggleCart, cartCount = 0 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
